@@ -53,6 +53,11 @@ export class MusicQuiz {
             return
         }
 
+        for (let i = this.songs.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.songs[i], this.songs[j]] = [this.songs[j], this.songs[i]];
+        }
+
         try {
             this.connection = await this.voiceChannel.join()
         } catch (e) {
@@ -67,7 +72,7 @@ export class MusicQuiz {
         this.textChannel.send(`
             **Let's get started**! :headphones: :tada:
             **${this.songs.length}** songs have been selected randomly from the playlist.
-            You have one minute to guess each song.
+            You have ${this.arguments.duration} seconds to guess each song.
 
             ${this.pointText()}
 
@@ -112,7 +117,7 @@ export class MusicQuiz {
 
         this.songTimeout = setTimeout(() => {
             this.nextSong('Song was not guessed in time')
-        }, 1000 * 60);
+        }, 1000 * this.arguments.duration);
 
         try {
             this.voiceStream = this.connection.play(this.musicStream, { type: 'opus', volume: .5 })
@@ -152,14 +157,14 @@ export class MusicQuiz {
         let score = this.scores[message.author.id] || 0
         let correct = false
 
-        if (!this.titleGuessed && content.includes(song.title.toLowerCase())) {
+        if (!this.titleGuessed && content.replace(/[^\w\s]/gi, '').includes(song.title.replace(/[^\w\s]/gi, '').toLowerCase())) {
             score = score + 2
             this.titleGuessed = true
             correct = true
             await this.reactToMessage(message, '☑')
         }
 
-        if (!this.artistGuessed && content.includes(song.artist.toLowerCase())) {
+        if (!this.artistGuessed && content.replace(/[^\w\s]/gi, '').includes(song.artist.replace(/[^\w\s]/gi, '').toLowerCase())) {
             score = score + 3
             this.artistGuessed = true
             correct = true

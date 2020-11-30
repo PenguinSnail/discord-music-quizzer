@@ -25,6 +25,12 @@ export class MusicQuizCommand extends Command {
                     default: 10
                 },
                 {
+                    key: 'duration',
+                    prompt: 'How long each song will last',
+                    type: 'string',
+                    default: 60
+                },
+                {
                     key: 'only',
                     prompt: 'Only this answer is required; artist, title or both',
                     type: 'string',

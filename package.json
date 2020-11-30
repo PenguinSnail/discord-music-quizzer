@@ -10,22 +10,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.3.2",
-    "@sentry/integrations": "^5.24.2",
-    "@sentry/node": "^5.24.2",
-    "discord.js": "^12.3.1",
+    "@discordjs/opus": "^0.3.3",
+    "@sentry/integrations": "^5.27.6",
+    "@sentry/node": "^5.27.6",
+    "discord.js": "^12.5.1",
     "discord.js-commando": "git+https://github.com/discordjs/Commando.git",
     "dotenv": "^8.2.0",
-    "scrape-youtube": "^0.2.3",
+    "scrape-youtube": "^0.2.6",
     "simple-youtube-api": "^5.2.1",
     "spotify-web-api-node": "^4.0.0",
-    "ytdl-core-discord": "^1.2.3"
+    "ytdl-core-discord": "^1.2.4"
   },
   "devDependencies": {
-    "@types/node": "^13.13.21",
+    "@types/node": "^13.13.33",
     "@types/request": "^2.48.5",
-    "@types/spotify-web-api-node": "^4.0.1",
-    "@types/ws": "^7.2.6",
+    "@types/spotify-web-api-node": "^4.0.2",
+    "@types/ws": "^7.4.0",
     "esbuild": "^0.2.12",
     "opusscript": "0.0.7",
     "typescript": "^3.9.7"

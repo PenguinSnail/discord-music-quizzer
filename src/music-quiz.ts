@@ -29,6 +29,7 @@ export class MusicQuiz {
     voiceStream: StreamDispatcher
     songTimeout: NodeJS.Timeout
     reactPermissionNotified: boolean = false
+    playlistCount: number
 
     constructor(message: CommandoMessage, args: QuizArgs) {
         this.guild = message.guild
@@ -53,11 +54,6 @@ export class MusicQuiz {
             return
         }
 
-        for (let i = this.songs.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.songs[i], this.songs[j]] = [this.songs[j], this.songs[i]];
-        }
-
         try {
             this.connection = await this.voiceChannel.join()
         } catch (e) {
@@ -71,7 +67,7 @@ export class MusicQuiz {
         this.scores = {}
         this.textChannel.send(`
             **Let's get started**! :headphones: :tada:
-            **${this.songs.length}** songs have been selected randomly from the playlist.
+            **${this.songs.length}** songs have been selected randomly from ${this.playlistCount} songs in the playlist.
             You have ${this.arguments.duration} seconds to guess each song.
 
             ${this.pointText()}
@@ -282,8 +278,9 @@ export class MusicQuiz {
         }
 
         try {
-            return (await spotify.getPlaylist(playlist))
-                .sort(() => Math.random() > 0.5 ? 1 : -1)
+            const fullList = await spotify.getPlaylist(playlist)
+            this.playlistCount = fullList.length
+            return fullList.sort(() => Math.random() > 0.5 ? 1 : -1)
                 .filter((song, index) => index < amount)
                 .map(song => ({
                     link: `https://open.spotify.com/track/${song.id}`,

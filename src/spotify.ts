@@ -14,8 +14,16 @@ export default class Spotify {
     }
 
     async getPlaylist(id: string) {
-        const result = await this.client.getPlaylistTracks(id)
+        let items: SpotifyApi.PlaylistTrackObject[] = [];
 
-        return result.body.items.map(({ track }) => track)
+        const tracksCount = (await this.client.getPlaylist(id)).body.tracks.total
+        console.log(tracksCount)
+        for (let i = 0; i < tracksCount; i = i + 100) {
+            const result = await this.client.getPlaylistTracks(id, {offset: i})
+            result.body.items.forEach(track => {
+                items.push(track)
+            })
+        }
+        return items.map(({ track }) => track)
     }
 }

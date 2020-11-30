@@ -96,7 +96,7 @@ export class MusicQuiz {
         const song = this.songs[this.currentSong]
         const link = await this.findSong(song)
         if (!link) {
-            this.nextSong('Could not find the song on Youtube. Skipping to next.')
+            this.nextSong('Could not find the song on Youtube. Skipping to next.', true)
 
             return
         }
@@ -106,7 +106,7 @@ export class MusicQuiz {
         } catch (e) {
             console.error(e);
 
-            this.nextSong('Could not stream the song from Youtube. Skipping to next.')
+            this.nextSong('Could not stream the song from Youtube. Skipping to next.', true)
 
             return
         }
@@ -205,12 +205,14 @@ export class MusicQuiz {
         this.voiceChannel.leave()
     }
 
-    nextSong(status: string) {
+    nextSong(status: string, ignoreCounter?: boolean) {
         if (this.songTimeout) clearTimeout(this.songTimeout)
         this.printStatus(status)
 
-        if (this.currentSong + 1 === this.songs.length) {
-            return this.finish()
+        if (!ignoreCounter) {
+            if (this.currentSong + 1 === this.songs.length) {
+                return this.finish()
+            }
         }
 
         this.currentSong++

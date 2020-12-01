@@ -209,10 +209,8 @@ export class MusicQuiz {
         if (this.songTimeout) clearTimeout(this.songTimeout)
         this.printStatus(status)
 
-        if (!ignoreCounter) {
-            if (this.currentSong + 1 === this.songs.length) {
-                return this.finish()
-            }
+        if (this.currentSong + 1 === this.songs.length) {
+            return this.finish()
         }
 
         this.currentSong++

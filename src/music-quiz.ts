@@ -97,7 +97,7 @@ export class MusicQuiz {
         const link = await this.findSong(song)
         if (link && typeof link === "string" && link !== "") {
             try {
-                this.musicStream = await ytdl(link, {begin: `${Math.round(Math.random() * 60)}s`})
+                this.musicStream = await ytdl(link, {begin: `${(song.duration / 2)}ms`})
             } catch (e) {
                 console.error(e);
                 this.nextSong('Could not stream the song from Youtube. Skipping to next.')
@@ -283,7 +283,8 @@ export class MusicQuiz {
                     link: `https://open.spotify.com/track/${song.id}`,
                     previewUrl: song.preview_url,
                     title: this.stripSongName(song.name),
-                    artist: (song.artists[0] || {}).name
+                    artist: (song.artists[0] || {}).name,
+                    duration: song.duration_ms
                 }))
         } catch (error) {
             this.textChannel.send('Could not retrieve the playlist. Make sure it\'s public')

@@ -9,8 +9,8 @@ import { VoiceConnection } from 'discord.js'
 import internal from 'stream'
 import { StreamDispatcher } from 'discord.js';
 
-const stopCommand = '!stop'
-const skipCommand = '!skip'
+const stopCommand = process.env.PREFIX + 'stop'
+const skipCommand = process.env.PREFIX + 'skip'
 
 export class MusicQuiz {
     guild: Guild

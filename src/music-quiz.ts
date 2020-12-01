@@ -95,19 +95,16 @@ export class MusicQuiz {
 
         const song = this.songs[this.currentSong]
         const link = await this.findSong(song)
-        if (!link) {
-            this.nextSong('Could not find the song on Youtube. Skipping to next.', true)
-
-            return
-        }
-
-        try {
-            this.musicStream = await ytdl(link)
-        } catch (e) {
-            console.error(e);
-
-            this.nextSong('Could not stream the song from Youtube. Skipping to next.', true)
-
+        if (link && typeof link === "string" && link !== "") {
+            try {
+                this.musicStream = await ytdl(link)
+            } catch (e) {
+                console.error(e);
+                this.nextSong('Could not stream the song from Youtube. Skipping to next.')
+                return
+            }
+        } else {
+            this.nextSong('Could not find the song on Youtube. Skipping to next.')
             return
         }
 
@@ -205,7 +202,7 @@ export class MusicQuiz {
         this.voiceChannel.leave()
     }
 
-    nextSong(status: string, ignoreCounter?: boolean) {
+    nextSong(status: string) {
         if (this.songTimeout) clearTimeout(this.songTimeout)
         this.printStatus(status)
 
@@ -297,8 +294,10 @@ export class MusicQuiz {
 
     async findSong(song: Song): Promise<string> {
         try {
-            const result = await Youtube.searchOne(`${song.title} ${song.artist} -video -live`)
-
+            let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
+            if (!(result?.link)) {
+                result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
+            }
             return result?.link ?? null
         } catch (e) {
             await this.textChannel.send('Oh no... Youtube police busted the party :(\nPlease try again later.')

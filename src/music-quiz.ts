@@ -97,7 +97,7 @@ export class MusicQuiz {
         const link = await this.findSong(song)
         if (link && typeof link === "string" && link !== "") {
             try {
-                this.musicStream = await ytdl(link, {begin: "1:00"})
+                this.musicStream = await ytdl(link, {begin: `${Math.round(Math.random() * 60)}s`})
             } catch (e) {
                 console.error(e);
                 this.nextSong('Could not stream the song from Youtube. Skipping to next.')

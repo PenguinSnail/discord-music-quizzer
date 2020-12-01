@@ -294,10 +294,11 @@ export class MusicQuiz {
 
     async findSong(song: Song): Promise<string> {
         try {
-            let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
-            if (!(result?.link)) {
-                result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
-            }
+            const result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
+            //let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
+            //if (!(result?.link)) {
+            //    result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
+            //}
             return result?.link ?? null
         } catch (e) {
             await this.textChannel.send('Oh no... Youtube police busted the party :(\nPlease try again later.')

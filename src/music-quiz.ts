@@ -97,7 +97,7 @@ export class MusicQuiz {
         const link = await this.findSong(song)
         if (link && typeof link === "string" && link !== "") {
             try {
-                this.musicStream = await ytdl(link)
+                this.musicStream = await ytdl(link, {begin: "1:00"})
             } catch (e) {
                 console.error(e);
                 this.nextSong('Could not stream the song from Youtube. Skipping to next.')
@@ -294,7 +294,7 @@ export class MusicQuiz {
 
     async findSong(song: Song): Promise<string> {
         try {
-            const result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
+            const result = await Youtube.searchOne(`${song.artist} ${song.title}`)
             //let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
             //if (!(result?.link)) {
             //    result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)

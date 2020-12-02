@@ -1,8 +1,9 @@
-import { MusicQuizCommand } from './commands'
+import { MusicQuizCommand, PlayPlaylistCommand } from './commands'
 import { Structures, Guild } from 'discord.js'
 import { CommandoClient } from 'discord.js-commando'
 import { config } from 'dotenv'
 import { MusicQuiz } from './music-quiz'
+import { PlayPlaylist } from './play-playlist'
 import path from 'path'
 import * as Sentry from '@sentry/node'
 import { RewriteFrames } from '@sentry/integrations'
@@ -32,6 +33,7 @@ declare global {
 declare module 'discord.js' {
     interface Guild {
         quiz: MusicQuiz
+        play: PlayPlaylist
     }
 }
 
@@ -49,6 +51,7 @@ if (process.env.SENTRY_DSN) {
 Structures.extend('Guild', Guild => {
     class MusicGuild extends Guild {
         quiz: MusicQuiz
+        play: PlayPlaylist
     }
 
     return MusicGuild
@@ -63,6 +66,7 @@ client.registry
 .registerDefaultTypes()
 .registerGroup('music')
 .registerCommand(MusicQuizCommand)
+.registerCommand(PlayPlaylistCommand)
 
 client.once('ready', () => {
     console.log('Ready!')

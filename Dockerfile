@@ -5,9 +5,11 @@ WORKDIR /app
 RUN apt-get update && \
     apt install -y ffmpeg libav-tools opus-tools
 
-COPY ./ /app
+COPY ./package.json /app
+COPY ./package-lock.json /app
+RUN npm ci
 
-RUN npm ci && \
-    npm run build
+COPY ./ /app
+RUN npm run build
 
 ENTRYPOINT ["node", "dist/index.js"]

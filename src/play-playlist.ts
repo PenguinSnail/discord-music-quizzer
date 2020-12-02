@@ -64,6 +64,8 @@ export class PlayPlaylist {
     }
 
     async startPlaying() {
+        this.printStatus()
+
         const song = this.songs[this.currentSong]
         const link = await this.findSong(song)
         if (link && typeof link === "string" && link !== "") {
@@ -128,8 +130,6 @@ export class PlayPlaylist {
     }
 
     nextSong() {
-        this.printStatus()
-
         if (this.currentSong + 1 === this.songs.length) {
             return this.finish()
         }

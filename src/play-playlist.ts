@@ -25,6 +25,7 @@ export class PlayPlaylist {
     musicStream: internal.Readable
     voiceStream: StreamDispatcher
     reactPermissionNotified: boolean = false
+    link: string
 
     constructor(message: CommandoMessage, args: PlayArgs) {
         this.guild = message.guild
@@ -64,24 +65,25 @@ export class PlayPlaylist {
     }
 
     async startPlaying() {
-        this.printStatus()
 
         const song = this.songs[this.currentSong]
-        const link = await this.findSong(song)
-        if (link && typeof link === "string" && link !== "") {
+        this.link = await this.findSong(song)
+        if (this.link && typeof this.link === "string" && this.link !== "") {
             try {
-                this.musicStream = await ytdl(link, {begin: `${(song.duration / 2)}ms`})
+                this.musicStream = await ytdl(this.link, {begin: `${(song.duration / 2)}ms`})
             } catch (e) {
 				console.error(e);
-				await this.textChannel.send('Could not stream the song from Youtube. Skipping to next.'.replace(/  +/g, ''))
+				await this.textChannel.send(`Could not stream **${song.title}** by **${song.artist}** from Youtube. Skipping to next.`.replace(/  +/g, ''))
                 this.nextSong()
                 return
             }
         } else {
-			await this.textChannel.send('Could not find the song on Youtube. Skipping to next.'.replace(/  +/g, ''))
+			await this.textChannel.send(`Could not find **${song.title}** by **${song.artist}** on Youtube. Skipping to next.`.replace(/  +/g, ''))
             this.nextSong()
             return
         }
+
+        this.printStatus()
 
         try {
             this.voiceStream = this.connection.play(this.musicStream, { type: 'opus', volume: .5 })
@@ -145,7 +147,8 @@ export class PlayPlaylist {
 		const next = this.songs[this.currentSong + 1]
         await this.textChannel.send(`
             Now Playing: **${song.title}** by **${song.artist}**
-            Link: || ${song.link} ||
+            Link: ${song.link}
+            YouTube: ${this.link}
 
             Up Next: **${next.title}** by **${next.artist}**
         `.replace(/  +/g, ''))

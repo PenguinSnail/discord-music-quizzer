@@ -66,7 +66,7 @@ export class PlayPlaylistCommand extends Command {
     constructor(client: CommandoClient) {
         super(client, {
             name: 'play-playlist',
-            memberName: 'music-quizzer',
+            memberName: 'play-playlist',
             group: 'music',
             description: 'Play Spotify playlists',
             guildOnly: true,

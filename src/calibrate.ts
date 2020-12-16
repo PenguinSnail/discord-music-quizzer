@@ -57,7 +57,8 @@ export class Calibration {
 
         await this.textChannel.send(`
             **(${this.currentSong + 1}/${this.songs.length})**
-            > **${song.title}** by **${song.artist}**
+			> **${song.title}** by **${song.artist}**
+			${db.findSong(song.artist, song.title) ? `> Current link: https://www.youtube.com/watch?v=${db.findSong(song.artist, song.title)}` : ''}
         `.replace(/  +/g, ''))
     }
 
@@ -77,7 +78,9 @@ export class Calibration {
 
 		const song = this.songs[this.currentSong]
 		if (content.includes('youtube.com')) {
-			link = content.match(/watch\?v=([^&]+)/)[1]
+			try {
+				link = content.match(/watch\?v=([^&]+)/)[1]
+			} catch {}
 			let success = false;
 			try {
 				ytdl(`https://www.youtube.com/watch?v=${link}`)

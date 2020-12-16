@@ -1,9 +1,11 @@
 import { MusicQuiz } from './music-quiz';
 import { PlayPlaylist } from './play-playlist';
+import { Calibration } from './calibrate';
 import { QuizArgs } from './types/quiz-args';
 import { PlayArgs } from './types/play-args';
 import { Command, CommandoClient, CommandoMessage } from "discord.js-commando"
 import { Message } from "discord.js"
+import { CalibrateArgs } from 'calibrate-args';
 
 export class MusicQuizCommand extends Command {
     constructor(client: CommandoClient) {
@@ -100,6 +102,40 @@ export class PlayPlaylistCommand extends Command {
 
         try {
             message.guild.play.start()
+        } catch (e) {
+            console.log("Process ded");
+        }
+    }
+}
+
+export class CalibratePlaylistCommand extends Command {
+    constructor(client: CommandoClient) {
+        super(client, {
+            name: 'calibrate',
+            memberName: 'calibrate',
+            group: 'music',
+            description: 'Calibrate Spotify playlists',
+            guildOnly: true,
+            throttling: {usages: 1, duration: 10},
+            args: [
+                {
+                    key: 'playlist',
+                    prompt: 'Which playlist to calibrate songs from',
+                    type: 'string',
+                }
+            ]
+        })
+    }
+
+    async run(message: CommandoMessage, args: CalibrateArgs, fromPattern: boolean): Promise<Message | Message[]> {
+        if (message.guild.calibration) {
+            return message.say('Calibration is already running')
+        }
+
+        message.guild.calibration = new Calibration(message, args)
+
+        try {
+            message.guild.calibration.start()
         } catch (e) {
             console.log("Process ded");
         }

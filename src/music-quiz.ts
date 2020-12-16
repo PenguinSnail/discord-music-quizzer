@@ -1,13 +1,13 @@
 import { MessageCollector, VoiceChannel, TextChannel, Guild, DMChannel } from 'discord.js';
-import ytdl from 'ytdl-core-discord'
+import ytdl from 'ytdl-core'
 import { QuizArgs } from './types/quiz-args'
 import { CommandoMessage } from 'discord.js-commando'
 import Spotify from './spotify'
-import Youtube from 'scrape-youtube'
 import { Song } from 'song'
 import { VoiceConnection } from 'discord.js'
 import internal from 'stream'
 import { StreamDispatcher } from 'discord.js';
+import * as db from './db'
 
 const stopCommand = process.env.PREFIX + 'stop'
 const skipCommand = process.env.PREFIX + 'skip'
@@ -94,17 +94,17 @@ export class MusicQuiz {
         }
 
         const song = this.songs[this.currentSong]
-        const link = await this.findSong(song)
+        const link = this.findSong(song)
         if (link && typeof link === "string" && link !== "") {
             try {
-                this.musicStream = await ytdl(link, {begin: `${(song.duration / 2)}ms`})
+                this.musicStream = ytdl(`https://www.youtube.com/watch?v=${link}`)
             } catch (e) {
                 console.error(e);
                 this.nextSong('Could not stream the song from Youtube. Skipping to next.')
                 return
             }
         } else {
-            this.nextSong('Could not find the song on Youtube. Skipping to next.')
+            this.nextSong('Song not in the database. Skipping to next.')
             return
         }
 
@@ -113,7 +113,7 @@ export class MusicQuiz {
         }, 1000 * this.arguments.duration);
 
         try {
-            this.voiceStream = this.connection.play(this.musicStream, { type: 'opus', volume: .5 })
+            this.voiceStream = this.connection.play(this.musicStream, { volume: .5 })
 
             this.voiceStream.on('error', () => {
                     this.textChannel.send('Connection got interrupted. Please try again')
@@ -222,7 +222,7 @@ export class MusicQuiz {
         await this.textChannel.send(`
             **(${this.currentSong + 1}/${this.songs.length})** ${message}
             > **${song.title}** by **${song.artist}**
-            > Link: || ${song.link} ||
+            > Link: || https://www.youtube.com/watch?v=${song.link} ||
 
             **__SCORES__**
             ${this.getScores()}
@@ -278,6 +278,7 @@ export class MusicQuiz {
             const fullList = await spotify.getPlaylist(playlist)
             this.playlistCount = fullList.length
             return fullList.sort(() => Math.random() > 0.5 ? 1 : -1)
+                .filter(song => db.findSong(song.artists[0].name, this.stripSongName(song.name)))
                 .filter((song, index) => index < amount)
                 .map(song => ({
                     link: `https://open.spotify.com/track/${song.id}`,
@@ -293,20 +294,8 @@ export class MusicQuiz {
         }
     }
 
-    async findSong(song: Song): Promise<string> {
-        try {
-            const result = await Youtube.searchOne(`${song.artist} ${song.title}`)
-            //let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
-            //if (!(result?.link)) {
-            //    result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
-            //}
-            return result?.link ?? null
-        } catch (e) {
-            await this.textChannel.send('Oh no... Youtube police busted the party :(\nPlease try again later.')
-            this.finish()
-
-            throw e
-        }
+    findSong(song: Song) {
+        return db.findSong(song.artist, song.title)
     }
 
     /**

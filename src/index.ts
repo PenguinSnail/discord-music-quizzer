@@ -1,9 +1,10 @@
-import { MusicQuizCommand, PlayPlaylistCommand } from './commands'
+import { CalibratePlaylistCommand, MusicQuizCommand, PlayPlaylistCommand } from './commands'
 import { Structures, Guild } from 'discord.js'
 import { CommandoClient } from 'discord.js-commando'
 import { config } from 'dotenv'
 import { MusicQuiz } from './music-quiz'
 import { PlayPlaylist } from './play-playlist'
+import { Calibration } from './calibrate'
 import path from 'path'
 import * as Sentry from '@sentry/node'
 import { RewriteFrames } from '@sentry/integrations'
@@ -34,6 +35,7 @@ declare module 'discord.js' {
     interface Guild {
         quiz: MusicQuiz
         play: PlayPlaylist
+        calibration: Calibration
     }
 }
 
@@ -67,6 +69,7 @@ client.registry
 .registerGroup('music')
 .registerCommand(MusicQuizCommand)
 .registerCommand(PlayPlaylistCommand)
+.registerCommand(CalibratePlaylistCommand)
 
 client.once('ready', () => {
     console.log('Ready!')

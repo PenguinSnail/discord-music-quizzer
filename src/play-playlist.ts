@@ -1,14 +1,13 @@
 import { MessageCollector, VoiceChannel, TextChannel, Guild, DMChannel } from 'discord.js';
-import ytdl from 'ytdl-core-discord'
+import ytdl from 'ytdl-core'
 import { PlayArgs } from './types/play-args'
 import { CommandoMessage } from 'discord.js-commando'
 import Spotify from './spotify'
-import Youtube from 'scrape-youtube'
 import { Song } from 'song'
 import { VoiceConnection } from 'discord.js'
 import internal from 'stream'
 import { StreamDispatcher } from 'discord.js';
-import { QuizArgs } from 'quiz-args';
+import * as db from './db'
 
 const stopCommand = process.env.PREFIX + 'stop'
 const skipCommand = process.env.PREFIX + 'skip'
@@ -67,10 +66,10 @@ export class PlayPlaylist {
     async startPlaying() {
 
         const song = this.songs[this.currentSong]
-        this.link = await this.findSong(song)
+        this.link = this.findSong(song)
         if (this.link && typeof this.link === "string" && this.link !== "") {
             try {
-                this.musicStream = await ytdl(this.link, {begin: `${(song.duration / 2)}ms`})
+                this.musicStream = await ytdl(`https://www.youtube.com/watch?v=${this.link}`)
             } catch (e) {
 				console.error(e);
 				await this.textChannel.send(`Could not stream **${song.title}** by **${song.artist}** from Youtube. Skipping to next.`.replace(/  +/g, ''))
@@ -86,7 +85,7 @@ export class PlayPlaylist {
         this.printStatus()
 
         try {
-            this.voiceStream = this.connection.play(this.musicStream, { type: 'opus', volume: .5 })
+            this.voiceStream = this.connection.play(this.musicStream, { volume: .5 })
 
             this.voiceStream.on('error', () => {
                     this.textChannel.send('Connection got interrupted. Please try again')
@@ -148,7 +147,7 @@ export class PlayPlaylist {
         await this.textChannel.send(`
             Now Playing: **${song.title}** by **${song.artist}**
             Link: ${song.link}
-            YouTube: ${this.link}
+            YouTube: https://www.youtube.com/watch?v=${this.link}
 
             Up Next: **${next.title}** by **${next.artist}**
         `.replace(/  +/g, ''))
@@ -163,7 +162,9 @@ export class PlayPlaylist {
 
         try {
             const fullList = await spotify.getPlaylist(playlist)
-            let songsList = fullList.map(song => ({
+            let songsList = fullList
+                .filter(song => db.findSong(song.artists[0].name, this.stripSongName(song.name)))
+                .map(song => ({
                     link: `https://open.spotify.com/track/${song.id}`,
                     previewUrl: song.preview_url,
                     title: this.stripSongName(song.name),
@@ -181,20 +182,8 @@ export class PlayPlaylist {
         }
     }
 
-    async findSong(song: Song): Promise<string> {
-        try {
-            const result = await Youtube.searchOne(`${song.artist} ${song.title}`)
-            //let result = await Youtube.searchOne(`${song.artist} ${song.title} topic -video -live`)
-            //if (!(result?.link)) {
-            //    result = await Youtube.searchOne(`${song.artist} ${song.title} -video -live`)
-            //}
-            return result?.link ?? null
-        } catch (e) {
-            await this.textChannel.send('Oh no... Youtube police busted the party :(\nPlease try again later.')
-            this.finish()
-
-            throw e
-        }
+    findSong(song: Song) {
+        return db.findSong(song.artist, song.title)
     }
 
     /**

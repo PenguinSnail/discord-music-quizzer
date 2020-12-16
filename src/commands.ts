@@ -122,6 +122,12 @@ export class CalibratePlaylistCommand extends Command {
                     key: 'playlist',
                     prompt: 'Which playlist to calibrate songs from',
                     type: 'string',
+                },
+                {
+                    key: 'skip',
+                    prompt: 'Skip to uncalibrated songs',
+                    type: 'boolean',
+                    default: true
                 }
             ]
         })

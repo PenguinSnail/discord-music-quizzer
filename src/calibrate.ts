@@ -122,7 +122,14 @@ export class Calibration {
 
         try {
             const fullList = await spotify.getPlaylist(playlist)
-            return fullList.map(song => ({
+            return fullList.filter(song => {
+                if (this.arguments.skip) {
+                    if (db.findSong((song.artists[0] || {}).name, this.stripSongName(song.name))) {
+                        return false;
+                    }
+                }
+                return true;
+            }).map(song => ({
                     link: `https://open.spotify.com/track/${song.id}`,
                     previewUrl: song.preview_url,
                     title: this.stripSongName(song.name),

@@ -76,7 +76,7 @@ export class Calibration {
         }
 
 		const song = this.songs[this.currentSong]
-		if (content.includes('youtube.com/watch?v=')) {
+		if (content.includes('youtube.com')) {
 			link = content.match(/watch\?v=([^&]+)/)[1]
 			let success = false;
 			try {
@@ -91,9 +91,7 @@ export class Calibration {
 				db.addSong(song.artist, song.title, link)
 				this.nextSong()
 			}
-        } else {
-			this.textChannel.send(`YouTube link not recognized!`.replace(/  +/g, ''))
-		}
+        }
     }
 
     async finish() {
